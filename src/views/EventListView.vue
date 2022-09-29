@@ -41,7 +41,6 @@
 // @ is an alias to /src
 import EventCard from '@/components/EventCard.vue'
 import EventService from '@/services/EventService.js'
-import BaseInput from '@/components/BaseInput.vue'
 
 export default {
   name: 'EventListView',
@@ -52,8 +51,7 @@ export default {
     }
   },
   components: {
-    EventCard,
-    BaseInput
+    EventCard
   },
   data() {
     return {
@@ -76,7 +74,21 @@ export default {
       })
   },
   beforeRouteUpdate(routeTo) {
-    return EventService.getEvents(3, parseInt(routeTo.query.page) || 1)
+    var queryFunction
+    if (this.keyword == null || this.keyword === '') {
+      queryFunction = EventService.getEvents(
+        3,
+        parseInt(routeTo.query.page) || 1
+      )
+    } else {
+      queryFunction = EventService.getEventByKeyword(
+        this.keyword,
+        3,
+        parseInt(routeTo.query.page) || 1
+      )
+    }
+
+    queryFunction
       .then((response) => {
         this.events = response.data // <---
         this.totalEvents = response.headers['x-total-count'] // <---
@@ -106,7 +118,6 @@ export default {
         })
     }
   },
-
   computed: {
     hasNextPage() {
       let totalPages = Math.ceil(this.totalEvents / 3)
@@ -121,10 +132,6 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-.search-box {
-  width: 300px;
-}
-
 .pagination {
   display: flex;
   width: 290px;
@@ -142,5 +149,9 @@ export default {
 
 #page-next {
   text-align: right;
+}
+
+.search-box {
+  width: 300px;
 }
 </style>
