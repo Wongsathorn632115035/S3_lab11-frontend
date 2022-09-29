@@ -1,6 +1,14 @@
 <template>
   <h1>Events For Good</h1>
   <div class="events">
+    <div class="search-box">
+      <BaseInput
+        v-model="keyword"
+        type="text"
+        label="Search..."
+        @input="updateKeyword"
+      />
+    </div>
     <EventCard
       v-for="event in events"
       :key="event.id"
@@ -33,6 +41,7 @@
 // @ is an alias to /src
 import EventCard from '@/components/EventCard.vue'
 import EventService from '@/services/EventService.js'
+import BaseInput from '@/components/BaseInput.vue'
 
 export default {
   name: 'EventListView',
@@ -43,12 +52,14 @@ export default {
     }
   },
   components: {
-    EventCard
+    EventCard,
+    BaseInput
   },
   data() {
     return {
       events: null,
-      totalEvents: 0
+      totalEvents: 0,
+      keyword: null
     }
   },
   // eslint-disable-next-line no-unused-vars
@@ -74,6 +85,28 @@ export default {
         return { name: 'NetworkError' } // <---
       })
   },
+  methods: {
+    updateKeyword() {
+      var queryFunction
+      if (this.keyword === '') {
+        queryFunction = EventService.getEvents(3, 1)
+      } else {
+        queryFunction = EventService.getEventByKeyword(this.keyword, 3, 1)
+      }
+
+      queryFunction
+        .then((response) => {
+          this.events = response.data
+          console.log(this.events)
+          this.totalEvents = response.headers['x-total-count']
+          console.log(this.totalEvents)
+        })
+        .catch(() => {
+          return { name: 'NetworkError' }
+        })
+    }
+  },
+
   computed: {
     hasNextPage() {
       let totalPages = Math.ceil(this.totalEvents / 3)
@@ -88,6 +121,10 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+.search-box {
+  width: 300px;
+}
+
 .pagination {
   display: flex;
   width: 290px;
