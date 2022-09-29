@@ -1,10 +1,10 @@
 <template>
   <label v-if="label">{{ label }}</label>
   <input
-    :placeholder="label"
-    :value="modelValue"
-    @input="inputHandler($event)"
     v-bind="$attrs"
+    :value="modelValue"
+    :placeholder="label"
+    @input="inputHandler($event)"
     class="field"
   />
 </template>
@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     inputHandler(event) {
-      this.$emit('update:midelValue', event.target.value)
+      this.$emit('update:modelValue', event.target.value)
     }
   }
 }
